@@ -17,11 +17,17 @@ def define_data(imgs_folder, IMG_SIZE):
             i+=1
             if i%500 == 0:
                 print("loading {}th image for class {}".format(i,str(dir)))
-                image_path = os.path.join(imgs_folder, dir, file)
+            image_path = os.path.join(imgs_folder, dir, file)
             image = cv2.imread(image_path)
             if image is not None:
+                image = cv2.cvtCOLOR(image,cv2.COLOR_BGR2RGB)
                 image = cv2.resize(image,IMG_SIZE,interpolation = cv2.INTER_CUBIC)
-                image = np.array(image)
+                lab = cv2.cvtCOLOR(image,cv2.COLOR_RGB2LAB)
+                L,A,B = cv2.split(lab)
+                clahe = cv2.createCLAHE(clipLimit=2.0,tileGridSize=(8,8))
+                L = clahe.apply(L)
+                lab = cv2.merge((L,A,B))
+                image = cv2.cvtColor(lab,cv2.COLOR_LAB2RGB)
                 image = image.astype(DTYPE_STR)
                 imgs_data.append(image)
                 class_names.append(dir)
